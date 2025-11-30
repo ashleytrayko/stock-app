@@ -3,15 +3,16 @@ API Endpoint Tests
 Similar to Spring's @WebMvcTest or MockMvc tests
 """
 import pytest
+import os
 from fastapi.testclient import TestClient
 from main import app
-from database.db import Base, engine
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 
 # Test client (similar to MockMvc in Spring)
 client = TestClient(app)
+
+# Check if running in CI environment
+IS_CI = os.getenv("CI", "false").lower() == "true"
 
 
 class TestStockAPI:
@@ -73,8 +74,9 @@ class TestStockAPI:
         assert len(data["data"]) > 0
 
 
+@pytest.mark.skipif(IS_CI, reason="Skipping DB tests in CI environment")
 class TestPortfolioAPI:
-    """Portfolio API endpoint tests"""
+    """Portfolio API endpoint tests (requires database)"""
 
     def test_get_all_portfolios(self):
         """Test getting all portfolios (GET /portfolio/)"""
