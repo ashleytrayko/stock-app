@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from database.models import Portfolio
-from models.portfolio import PortfolioCreate, PortfolioUpdate, PortfolioWithProfit
+from models import Portfolio
+from schemas.portfolio import PortfolioCreate, PortfolioUpdate, PortfolioWithProfit
 from services.stock_service import StockService
 from typing import List, Optional
 

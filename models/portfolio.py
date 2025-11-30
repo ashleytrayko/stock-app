@@ -1,46 +1,36 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
-from decimal import Decimal
+from sqlalchemy import Column, Integer, String, DateTime, Float, Numeric, Sequence
+from sqlalchemy.sql import func
+from database.db import Base
 
 
-class PortfolioCreate(BaseModel):
-    """Portfolio creation request DTO"""
-    symbol: str = Field(..., description="Stock symbol (e.g., AAPL, TSLA)")
-    purchase_price: float = Field(..., gt=0, description="Purchase price per share")
-    quantity: int = Field(..., gt=0, description="Number of shares")
+class Portfolio(Base):
+    """
+    User's stock portfolio (내 주식 포트폴리오)
+    Similar to @Entity in JPA
+    """
+    __tablename__ = "portfolio"
 
+    # Primary Key (similar to @Id @GeneratedValue)
+    id = Column(Integer, Sequence('portfolio_seq'), primary_key=True)
 
-class PortfolioUpdate(BaseModel):
-    """Portfolio update request DTO"""
-    purchase_price: Optional[float] = Field(None, gt=0)
-    quantity: Optional[int] = Field(None, gt=0)
+    # Stock symbol (similar to @Column(nullable = false))
+    symbol = Column(String(20), nullable=False, index=True)
 
+    # Stock name
+    name = Column(String(200), nullable=True)
 
-class PortfolioResponse(BaseModel):
-    """Portfolio response DTO"""
-    id: int
-    symbol: str
-    name: Optional[str]
-    purchase_price: float
-    quantity: int
-    created_at: datetime
-    updated_at: Optional[datetime]
+    # Purchase price (매수가)
+    purchase_price = Column(Numeric(10, 2), nullable=False)
 
-    class Config:
-        from_attributes = True  # Allows ORM model to Pydantic model conversion
+    # Quantity (보유 수량)
+    quantity = Column(Integer, nullable=False)
 
+    # User ID (for future user authentication)
+    user_id = Column(Integer, nullable=True, index=True)
 
-class PortfolioWithProfit(BaseModel):
-    """Portfolio with profit/loss calculation"""
-    id: int
-    symbol: str
-    name: Optional[str]
-    purchase_price: float
-    quantity: int
-    current_price: Optional[float]
-    total_cost: float  # 총 매수금액 = purchase_price * quantity
-    current_value: Optional[float]  # 현재 평가금액 = current_price * quantity
-    profit_loss: Optional[float]  # 손익 = current_value - total_cost
-    profit_loss_percent: Optional[float]  # 수익률 (%)
-    created_at: datetime
+    # Timestamps (similar to @CreatedDate, @LastModifiedDate)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<Portfolio(id={self.id}, symbol={self.symbol}, quantity={self.quantity}, purchase_price={self.purchase_price})>"

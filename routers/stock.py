@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models.stock import StockInfo
+from schemas.stock import StockInfo
 from services.stock_service import StockService
 
 router = APIRouter(

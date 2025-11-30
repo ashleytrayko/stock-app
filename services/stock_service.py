@@ -1,6 +1,6 @@
 import yfinance as yf
 from typing import Dict, List, Optional
-from models.stock import StockInfo
+from schemas.stock import StockInfo
 
 
 class StockService:
