@@ -13,7 +13,10 @@ class PortfolioService:
 
     @staticmethod
     def create_portfolio(db: Session, portfolio_data: PortfolioCreate) -> Portfolio:
-        """Create a new portfolio entry"""
+        """
+        Create a new portfolio entry
+        NOTE: This is deprecated. Use Transaction API to buy/sell stocks.
+        """
         # Get stock name from yfinance
         stock_info = StockService.get_stock_info(portfolio_data.symbol)
         stock_name = stock_info.name if stock_info else None
@@ -21,7 +24,7 @@ class PortfolioService:
         db_portfolio = Portfolio(
             symbol=portfolio_data.symbol.upper(),
             name=stock_name,
-            purchase_price=portfolio_data.purchase_price,
+            average_price=portfolio_data.average_price,
             quantity=portfolio_data.quantity
         )
 
@@ -47,14 +50,17 @@ class PortfolioService:
 
     @staticmethod
     def update_portfolio(db: Session, portfolio_id: int, portfolio_data: PortfolioUpdate) -> Optional[Portfolio]:
-        """Update portfolio entry"""
+        """
+        Update portfolio entry
+        NOTE: This is deprecated. Use Transaction API to buy/sell stocks.
+        """
         db_portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id).first()
 
         if not db_portfolio:
             return None
 
-        if portfolio_data.purchase_price is not None:
-            db_portfolio.purchase_price = portfolio_data.purchase_price
+        if portfolio_data.average_price is not None:
+            db_portfolio.average_price = portfolio_data.average_price
 
         if portfolio_data.quantity is not None:
             db_portfolio.quantity = portfolio_data.quantity
@@ -88,7 +94,7 @@ class PortfolioService:
         current_price = stock_info.current_price if stock_info else None
 
         # Calculate profit/loss
-        total_cost = float(db_portfolio.purchase_price) * db_portfolio.quantity
+        total_cost = float(db_portfolio.average_price) * db_portfolio.quantity
         current_value = (current_price * db_portfolio.quantity) if current_price else None
         profit_loss = (current_value - total_cost) if current_value else None
         profit_loss_percent = ((profit_loss / total_cost) * 100) if profit_loss else None
@@ -97,7 +103,7 @@ class PortfolioService:
             id=db_portfolio.id,
             symbol=db_portfolio.symbol,
             name=db_portfolio.name,
-            purchase_price=float(db_portfolio.purchase_price),
+            average_price=float(db_portfolio.average_price),
             quantity=db_portfolio.quantity,
             current_price=current_price,
             total_cost=total_cost,
@@ -119,7 +125,7 @@ class PortfolioService:
             current_price = stock_info.current_price if stock_info else None
 
             # Calculate profit/loss
-            total_cost = float(portfolio.purchase_price) * portfolio.quantity
+            total_cost = float(portfolio.average_price) * portfolio.quantity
             current_value = (current_price * portfolio.quantity) if current_price else None
             profit_loss = (current_value - total_cost) if current_value else None
             profit_loss_percent = ((profit_loss / total_cost) * 100) if profit_loss else None
@@ -128,7 +134,7 @@ class PortfolioService:
                 id=portfolio.id,
                 symbol=portfolio.symbol,
                 name=portfolio.name,
-                purchase_price=float(portfolio.purchase_price),
+                average_price=float(portfolio.average_price),
                 quantity=portfolio.quantity,
                 current_price=current_price,
                 total_cost=total_cost,

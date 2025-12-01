@@ -14,16 +14,19 @@ class Portfolio(Base):
     id = Column(Integer, Sequence('portfolio_seq'), primary_key=True)
 
     # Stock symbol (similar to @Column(nullable = false))
-    symbol = Column(String(20), nullable=False, index=True)
+    # UNIQUE constraint ensures one portfolio record per symbol
+    symbol = Column(String(20), nullable=False, unique=True, index=True)
 
     # Stock name
     name = Column(String(200), nullable=True)
 
-    # Purchase price (매수가)
-    purchase_price = Column(Numeric(10, 2), nullable=False)
+    # Average purchase price (평균 매수가)
+    # This is calculated from all buy transactions
+    average_price = Column(Numeric(10, 2), nullable=False)
 
-    # Quantity (보유 수량)
-    quantity = Column(Integer, nullable=False)
+    # Total quantity (총 보유 수량)
+    # This is the sum of all buy transactions minus sell transactions
+    quantity = Column(Integer, nullable=False, default=0)
 
     # User ID (for future user authentication)
     user_id = Column(Integer, nullable=True, index=True)
@@ -33,4 +36,4 @@ class Portfolio(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     def __repr__(self):
-        return f"<Portfolio(id={self.id}, symbol={self.symbol}, quantity={self.quantity}, purchase_price={self.purchase_price})>"
+        return f"<Portfolio(id={self.id}, symbol={self.symbol}, quantity={self.quantity}, average_price={self.average_price})>"
