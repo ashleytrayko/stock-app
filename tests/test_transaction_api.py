@@ -319,6 +319,7 @@ class TestTransactionAPI:
         assert response.status_code == 422  # Validation error
 
 
+@pytest.mark.skipif(IS_CI, reason="Skipping DB tests in CI environment")
 @pytest.mark.parametrize("symbol,quantity,expected_status", [
     ("PARAM1", 10, 201),
     ("PARAM2", 5, 201),
